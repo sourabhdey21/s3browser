@@ -37,6 +37,9 @@ logs/
 .temp/
 .tmp/
 venv/
+__pycache__/
+__pycache__/
+__pycache__/
 
 # Optional: Package manager locks
 # package-lock.json
