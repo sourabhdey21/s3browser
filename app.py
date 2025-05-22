@@ -1,5 +1,5 @@
 import os
-from flask import Flask, render_template, request, redirect, url_for, flash, send_file, session, jsonify
+from flask import Flask, render_template, request, redirect, url_for, flash, send_file, session, jsonify, Response
 import boto3
 from botocore.exceptions import ClientError
 from werkzeug.utils import secure_filename
@@ -157,6 +157,50 @@ def api_tree():
         return jsonify(tree)
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+@app.route('/preview/<path:key>')
+def preview_file(key):
+    s3_client = get_s3_client()
+    selected_bucket = DEFAULT_AWS_CREDS['bucket']
+    try:
+        # Get the file's content type
+        head = s3_client.head_object(Bucket=selected_bucket, Key=key)
+        ext = key.split('.')[-1].lower()
+        content_type = head.get('ContentType')
+        if not content_type or content_type == 'binary/octet-stream':
+            if ext == 'mp4':
+                content_type = 'video/mp4'
+            elif ext == 'webm':
+                content_type = 'video/webm'
+            elif ext == 'mov':
+                content_type = 'video/quicktime'
+            else:
+                content_type = 'application/octet-stream'
+        range_header = request.headers.get('Range', None)
+        file_size = head['ContentLength']
+        if range_header:
+            # Example: Range: bytes=0-1023
+            import re
+            match = re.match(r'bytes=(\d+)-(\d*)', range_header)
+            if match:
+                start = int(match.group(1))
+                end = int(match.group(2)) if match.group(2) else file_size - 1
+            else:
+                start = 0
+                end = file_size - 1
+            length = end - start + 1
+            s3_response = s3_client.get_object(Bucket=selected_bucket, Key=key, Range=f'bytes={start}-{end}')
+            data = s3_response['Body'].read()
+            rv = Response(data, 206, mimetype=content_type, direct_passthrough=True)
+            rv.headers.add('Content-Range', f'bytes {start}-{end}/{file_size}')
+            rv.headers.add('Accept-Ranges', 'bytes')
+            rv.headers.add('Content-Length', str(length))
+            return rv
+        else:
+            s3_response = s3_client.get_object(Bucket=selected_bucket, Key=key)
+            return Response(s3_response['Body'].read(), mimetype=content_type)
+    except Exception as e:
+        return f"Error streaming video: {e}", 404
 
 if __name__ == '__main__':
     app.run(debug=True) 

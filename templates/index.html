@@ -171,6 +171,10 @@
                                 <span class="ms-auto">{{ (file.size / 1024)|round|int }} KB</span>
                                 <span class="ms-4">{{ file.last_modified.strftime('%Y-%m-%d %H:%M') }}</span>
                                 <span class="ms-4">
+                                    {% set ext = file.name.split('.')[-1]|lower %}
+                                    {% if ext in ['mp4', 'webm', 'mov'] %}
+                                        <button class="btn btn-sm btn-outline-success view-video-btn" data-key="{{ file.full_key }}" data-filename="{{ file.name }}" title="View"><i class="fas fa-play"></i></button>
+                                    {% endif %}
                                     <a href="{{ url_for('download_file', key=file.full_key) }}" class="btn btn-sm btn-outline-primary" title="Download"><i class="fas fa-download"></i></a>
                                     <a href="{{ url_for('delete_file', key=file.full_key) }}" class="btn btn-sm btn-outline-danger" title="Delete" onclick="return confirm('Are you sure you want to delete this file?')"><i class="fas fa-trash"></i></a>
                                 </span>
@@ -226,6 +230,23 @@
                         <button type="submit" class="btn btn-success"><i class="fas fa-folder-plus"></i> Create</button>
                     </div>
                 </form>
+            </div>
+        </div>
+    </div>
+    <!-- Video Preview Modal -->
+    <div class="modal fade" id="videoModal" tabindex="-1" aria-labelledby="videoModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="videoModalLabel">Video Preview</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <video id="videoPlayer" controls style="width:100%;max-height:70vh;" preload="metadata">
+                        <source id="videoSource" src="" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
             </div>
         </div>
     </div>
@@ -317,6 +338,21 @@
             uploadProgressBar.textContent = '0%';
             uploadBtn.disabled = false;
             uploadForm.reset();
+        });
+        // Video preview logic
+        const videoModal = new bootstrap.Modal(document.getElementById('videoModal'));
+        document.querySelectorAll('.view-video-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const key = this.getAttribute('data-key');
+                const filename = this.getAttribute('data-filename');
+                const ext = filename.split('.').pop().toLowerCase();
+                const videoPlayer = document.getElementById('videoPlayer');
+                const videoSource = document.getElementById('videoSource');
+                videoSource.src = `/preview/${encodeURIComponent(key)}`;
+                videoSource.type = `video/${ext === 'mp4' ? 'mp4' : ext}`;
+                videoPlayer.load();
+                videoModal.show();
+            });
         });
     </script>
 </body>
