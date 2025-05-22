@@ -1,5 +1,7 @@
 # S3 File Manager
 
+![S3 File Manager Screenshot](screenshots/dashboard.png)
+
 A modern web application built with Flask to manage your AWS S3 bucket. This application allows you to:
 - View files and folders in your S3 bucket
 - Upload files to your bucket
