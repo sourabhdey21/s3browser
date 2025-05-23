@@ -2,12 +2,13 @@
 
 ![S3 File Manager Screenshot](screenshots/dashboard.png)
 
-A modern web application built with Flask to manage your AWS S3 bucket. This application allows you to:
-- View files and folders in your S3 bucket
-- Upload files to your bucket
-- Download files from your bucket
-- Delete files from your bucket
-- Create new folders in your bucket
+A modern web application built with Flask to manage your AWS S3 buckets. This application allows you to:
+- Browse and switch between multiple S3 buckets
+- View files and folders in your S3 buckets
+- Upload files to your buckets
+- Download files from your buckets
+- Delete files from your buckets
+- Create new folders in your buckets
 
 ## Setup
 
@@ -22,7 +23,6 @@ A modern web application built with Flask to manage your AWS S3 bucket. This app
    AWS_ACCESS_KEY_ID=your_access_key_here
    AWS_SECRET_ACCESS_KEY=your_secret_key_here
    AWS_REGION=your_region_here
-   S3_BUCKET_NAME=your_bucket_name_here
    ```
 
 4. Run the application:
@@ -34,7 +34,7 @@ A modern web application built with Flask to manage your AWS S3 bucket. This app
 
    For production (using Gunicorn):
    ```bash
-   gunicorn --bind 0.0.0.0:8000 --workers 4 --timeout 120 wsgi:app
+   gunicorn --bind 0.0.0.0:8000 --workers 4 --timeout 120 --access-logfile - --error-logfile - wsgi:app
    ```
 
 5. Open your browser and navigate to:
@@ -65,11 +65,13 @@ Additional Gunicorn options:
 ## Features
 
 - Modern, responsive UI built with Bootstrap 5
+- Multi-bucket support with easy switching
 - Real-time file operations
 - Flash messages for operation feedback
 - File size display
 - Confirmation dialogs for destructive actions
 - Auto-dismissing notifications
+- File preview support for various file types
 
 ## Security Notes
 

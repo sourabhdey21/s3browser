@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>S3 Bucket Manager</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #e0e7ff 0%, #f8fafc 100%);
+            display: flex;
+            flex-direction: column;
+        }
+        .main-content {
+            flex: 1 0 auto;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 80vh;
+        }
+        .bucket-card {
+            border: none;
+            border-radius: 1.25rem;
+            box-shadow: 0 4px 24px rgba(80,0,120,0.10);
+            transition: transform 0.18s, box-shadow 0.18s, background 0.18s;
+            background: #fff;
+            animation: fadeIn 0.7s;
+        }
+        .bucket-card:hover {
+            transform: scale(1.045) translateY(-4px);
+            box-shadow: 0 8px 32px rgba(80,0,120,0.18);
+            background: #f1f5ff;
+        }
+        .bucket-card .card-title {
+            font-size: 1.35rem;
+            font-weight: 600;
+            color: #3b3b5c;
+        }
+        .bucket-card .fa-folder-open {
+            color: #6366f1;
+        }
+        .bucket-card .btn-primary {
+            background: linear-gradient(90deg, #6366f1 60%, #60a5fa 100%);
+            border: none;
+            font-weight: 500;
+            letter-spacing: 0.03em;
+            box-shadow: 0 2px 8px rgba(99,102,241,0.08);
+        }
+        .bucket-card .btn-primary:hover {
+            background: linear-gradient(90deg, #4f46e5 60%, #2563eb 100%);
+        }
+        .fade-in {
+            animation: fadeIn 0.7s;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: none; }
+        }
+        .footer {
+            flex-shrink: 0;
+            background: #23272f;
+            color: #fff;
+            text-align: center;
+            padding: 1rem 0 0.5rem 0;
+            font-size: 1rem;
+            letter-spacing: 0.02em;
+        }
+        @media (max-width: 768px) {
+            .main-content { min-height: 60vh; }
+            .bucket-card { margin-bottom: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="/">
+                <i class="fas fa-cloud me-2"></i>S3 Bucket Manager
+            </a>
+        </div>
+    </nav>
+
+    <div class="main-content">
+        <div class="container">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <h1 class="mb-4 fw-bold text-center" style="font-size:2.3rem; color:#3730a3; letter-spacing:0.01em;">Available S3 Buckets</h1>
+            <div class="row justify-content-center g-4">
+                {% for bucket in buckets %}
+                <div class="col-md-5 col-lg-4 fade-in">
+                    <div class="card bucket-card h-100">
+                        <div class="card-body d-flex flex-column justify-content-between">
+                            <h5 class="card-title mb-2">
+                                <i class="fas fa-folder-open me-2"></i>
+                                {{ bucket.Name }}
+                            </h5>
+                            <p class="card-text text-muted mb-3" style="font-size:1.05rem;">
+                                <i class="far fa-calendar-alt me-1"></i>
+                                Created: {{ bucket.CreationDate.strftime('%Y-%m-%d %H:%M:%S') }}
+                            </p>
+                            <a href="{{ url_for('index', bucket_name=bucket.Name) }}" class="btn btn-primary align-self-start px-4 py-2">
+                                <i class="fas fa-arrow-right me-2"></i>
+                                Open Bucket
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            {% if not buckets %}
+            <div class="alert alert-info mt-4">
+                No buckets found. Please make sure your AWS credentials have the necessary permissions.
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <footer class="footer mt-auto">
+        <div>
+            Made by <span style="color:#f59e42;">&#9733;</span> by <strong>Sourabh Dey</strong> &middot; Powered by Flask & AWS S3
+            <a href="https://www.linkedin.com/in/sourabh-dey-049a22204/" target="_blank" rel="noopener" style="color:#0a66c2; margin-left:12px; text-decoration:none; font-size:1.3em; vertical-align:middle;">
+                <i class="fab fa-linkedin"></i>
+            </a>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> 

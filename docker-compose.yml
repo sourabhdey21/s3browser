@@ -1,0 +1,11 @@
+version: '3.8'
+
+services:
+  s3-file-manager:
+    build: .
+    container_name: s3-file-manager
+    env_file:
+      - .env
+    ports:
+      - "8000:8000"
+    restart: unless-stopped 
